@@ -1,0 +1,31 @@
+ 						KUBERNETES SETUP INSTRUCTIONS
+
+ Things to be done in ALL nodes
+
+    setenforce 0
+    sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
+    systemctl enable --now firewalld
+    firewall-cmd --add-port=0-65535/tcp --permanent
+    firewall-cmd --add-port=0-65535/udp --permanent
+    firewall-cmd --reload
+    swapoff -a
+    remove entry for swap from /etc/fstab
+    modprobe br_netfilter
+    echo net.bridge.bridge-nf-call-ip6tables = 1 >>/etc/sysctl.conf
+    echo net.bridge.bridge-nf-call-iptables = 1 >>/etc/sysctl.conf
+    sysctl --system
+    yum install net-tools vim bash-completion kubelet kubectl kubeadm docker -y
+    systemctl start docker
+    systemctl enable docker kubelet
+
+Things to be done on Master Node only
+
+    kubeadm init --pod-network-cidr=172.24.0.0/16
+    kubectl create -f http://192.168.10.254/kubernetes/kube-flannel.yml
+    use given command after just above step on ALL worker Nodes
+    mkdir /root/.kube
+    cp -vi /etc/kubernetes/admin.conf /root/.kube/config
+
+only on worker node
+
+copy and paste the output of kubectl init command from above step 
